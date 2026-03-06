@@ -1,0 +1,1 @@
+POST http://localhost:8080/orders?amount=1000&coupon=DIWALI10
