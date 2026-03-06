@@ -1,5 +1,6 @@
 package com.flashcart.order.controller;
 
+import com.flashcart.dto.CreateOrderRequest;
 import com.flashcart.order.model.OrderEntity;
 import com.flashcart.order.service.OrderService;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +16,8 @@ public class OrderController {
     }
 
     @PostMapping
-    public OrderEntity createOrder(@RequestParam double amount,
-                                   @RequestParam(required = false) String coupon) {
+    public OrderEntity createOrder(@RequestBody CreateOrderRequest request) {
 
-        return orderService.placeOrder(amount, coupon);
+        return orderService.placeOrder(request.getAmount(), request.getCoupon());
     }
 }

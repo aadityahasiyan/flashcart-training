@@ -1,1 +1,7 @@
-POST http://localhost:8080/orders?amount=1000&coupon=DIWALI10
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "amount": 1000,
+  "coupon": "DIWALI10"
+}
