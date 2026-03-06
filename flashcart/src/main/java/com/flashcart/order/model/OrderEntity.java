@@ -13,11 +13,12 @@ public class OrderEntity {
 
     private double discount;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     public OrderEntity() {}
 
-    public OrderEntity(double amount, double discount, String status) {
+    public OrderEntity(double amount, double discount, OrderStatus status) {
         this.amount = amount;
         this.discount = discount;
         this.status = status;
@@ -35,7 +36,7 @@ public class OrderEntity {
         return discount;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
@@ -43,7 +44,7 @@ public class OrderEntity {
         this.discount = discount;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 }

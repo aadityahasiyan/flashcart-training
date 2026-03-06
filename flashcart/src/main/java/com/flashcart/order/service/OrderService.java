@@ -2,6 +2,7 @@ package com.flashcart.order.service;
 
 import com.flashcart.notification.service.NotificationService;
 import com.flashcart.order.model.OrderEntity;
+import com.flashcart.order.model.OrderStatus;
 import com.flashcart.order.repository.OrderRepository;
 import com.flashcart.payment.service.PaymentService;
 import com.flashcart.promotion.service.PromotionService;
@@ -31,13 +32,13 @@ public class OrderService {
         double discount = promotionService.calculateDiscount(amount, coupon);
 
         // create order
-        OrderEntity order = new OrderEntity(amount, discount, "CREATED");
+        OrderEntity order = new OrderEntity(amount, discount, OrderStatus.CREATED);
 
         // process payment
         paymentService.processPayment(amount - discount);
 
         // mark order confirmed
-        order.setStatus("CONFIRMED");
+        order.setStatus(OrderStatus.CONFIRMED);
 
         // persist
         orderRepository.save(order);
