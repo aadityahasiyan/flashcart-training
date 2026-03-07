@@ -28,6 +28,13 @@ public class OrderService {
 
     public OrderEntity placeOrder(double amount, String coupon) {
 
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+
+        if (amount > 100000) {
+            throw new IllegalArgumentException("Amount exceeds limit");
+        }
         // calculate discount
         double discount = promotionService.calculateDiscount(amount, coupon);
 
