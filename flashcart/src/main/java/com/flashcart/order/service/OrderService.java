@@ -1,6 +1,5 @@
 package com.flashcart.order.service;
 
-import com.flashcart.notification.service.NotificationService;
 import com.flashcart.order.event.OrderPlacedEvent;
 import com.flashcart.order.model.OrderEntity;
 import com.flashcart.order.model.OrderStatus;
@@ -15,17 +14,14 @@ public class OrderService {
 
     private final PromotionService promotionService;
     private final PaymentService paymentService;
-    private final NotificationService notificationService;
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     public OrderService(PromotionService promotionService,
                         PaymentService paymentService,
-                        NotificationService notificationService,
                         OrderRepository orderRepository, ApplicationEventPublisher applicationEventPublisher) {
         this.promotionService = promotionService;
         this.paymentService = paymentService;
-        this.notificationService = notificationService;
         this.orderRepository = orderRepository;
         this.applicationEventPublisher = applicationEventPublisher;
     }
@@ -48,7 +44,6 @@ public class OrderService {
         orderRepository.save(order);
 
         // notify customer
-        //notificationService.sendOrderConfirmation(order.getId());
         applicationEventPublisher.publishEvent((new OrderPlacedEvent(order.getId())));
         return order;
     }
