@@ -1,14 +1,18 @@
 package com.flashcart.payment.service;
 
-import com.flashcart.payment.client.RazorpayClient;
+import com.flashcart.payment.Gateway.PaymentGateway;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentService {
 
-    public void processPayment(double amount) {
+    private final PaymentGateway gateway;
 
-        RazorpayClient client = new RazorpayClient();
-        client.charge(amount);
+    public PaymentService(PaymentGateway gateway) {
+        this.gateway = gateway;
+    }
+
+    public void processPayment(double amount) {
+        gateway.charge(amount);
     }
 }
