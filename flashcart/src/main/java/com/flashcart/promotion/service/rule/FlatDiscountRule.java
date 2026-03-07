@@ -1,5 +1,7 @@
 package com.flashcart.promotion.service.rule;
 
+import org.springframework.stereotype.Component;
+
 @Component
 public class FlatDiscountRule implements PromotionRule {
 
