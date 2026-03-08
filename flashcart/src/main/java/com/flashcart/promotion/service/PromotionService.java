@@ -15,18 +15,14 @@ public class PromotionService {
 
     private final List<PromotionRule> rules;
 
-    public PromotionService() {
-
-        rules = List.of(
-                new DiwaliPromotion(),
-                new NewUserPromotion(),
-                new LoyaltyPromotion()
-        );
+    public PromotionService(List<PromotionRule> rules) {
+        this.rules = rules;
     }
 
     public void applyPromotions(PricingContext context, String coupon) {
         for (PromotionRule rule : rules) {
-            rule.apply(context, coupon);
+            if(rule.supports(context, coupon))
+                rule.apply(context, coupon);
         }
     }
 }
