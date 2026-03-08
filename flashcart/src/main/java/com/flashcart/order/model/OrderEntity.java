@@ -1,6 +1,7 @@
 package com.flashcart.order.model;
 
 import com.flashcart.order.statemachine.OrderState;
+import com.flashcart.order.statemachine.OrderStateFactory;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,6 +17,12 @@ public class OrderEntity {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    @Transient
+    private OrderState state;
+
+    @Transient
+    private OrderStateFactory stateFactory;
 
     public OrderEntity() {}
 
@@ -49,8 +56,6 @@ public class OrderEntity {
         this.status = status;
     }
 
-    @Transient
-    private OrderState state;
 
     public void setState(OrderState state, OrderStatus status) {
         this.state = state;
@@ -58,6 +63,15 @@ public class OrderEntity {
     }
 
     public OrderState getState() {
+
+        if (state == null) {
+            state = stateFactory.getState(this.status);
+        }
+
         return state;
+    }
+
+    public void setStateFactory(OrderStateFactory stateFactory) {
+        this.stateFactory = stateFactory;
     }
 }

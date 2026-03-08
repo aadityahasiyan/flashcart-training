@@ -10,6 +10,7 @@ import com.flashcart.order.model.OrderContext;
 import com.flashcart.order.model.OrderEntity;
 import com.flashcart.order.model.OrderStatus;
 import com.flashcart.order.repository.OrderRepository;
+import com.flashcart.order.statemachine.OrderStateFactory;
 import com.flashcart.workflow.OrderStep;
 import com.flashcart.payment.service.PaymentService;
 import com.flashcart.payment.workflowstep.ProcessPaymentStep;
@@ -30,6 +31,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final InventoryService inventoryService;
     private final FraudService fraudService;
+    private final OrderStateFactory stateFactory;
 
     public OrderService(
             PromotionService promotionService,
@@ -37,7 +39,8 @@ public class OrderService {
             OrderRepository orderRepository,
             NotificationService notificationService,
             InventoryService inventoryService,
-            FraudService fraudService
+            FraudService fraudService,
+            OrderStateFactory orderStateFactory
     ) {
         this.promotionService = promotionService;
         this.paymentService = paymentService;
@@ -45,6 +48,7 @@ public class OrderService {
         this.notificationService = notificationService;
         this.inventoryService = inventoryService;
         this.fraudService = fraudService;
+        this.stateFactory = orderStateFactory;
     }
 
     public OrderEntity placeOrder(CreateOrderRequest request) {
@@ -94,11 +98,13 @@ public class OrderService {
                 OrderStatus.CREATED
         );
 
-        // persist
-        orderRepository.save(order);
+        order.setStateFactory(stateFactory);
 
         //CONFIRM
-        order.setStatus(OrderStatus.CONFIRMED);
+        order.getState().confirm(order);
+
+        // persist
+        orderRepository.save(order);
 
         // notify customer
         notificationService.sendOrderConfirmation(order.getId());
@@ -108,32 +114,16 @@ public class OrderService {
 
     public void cancelOrder(OrderEntity order) {
 
-        if (order.getStatus() == OrderStatus.SHIPPED ||
-                order.getStatus() == OrderStatus.DELIVERED) {
-
-            throw new RuntimeException("Cannot cancel shipped order");
-        }
-
-        order.setStatus(OrderStatus.CANCELLED);
+        order.getState().cancel(order);
     }
 
     public void shipOrder(OrderEntity order) {
 
-        if (order.getStatus() != OrderStatus.CONFIRMED &&
-                order.getStatus() != OrderStatus.READY) {
-
-            throw new RuntimeException("Order cannot be shipped");
-        }
-
-        order.setStatus(OrderStatus.SHIPPED);
+        order.getState().ship(order);
     }
 
     public void refundOrder(OrderEntity order) {
 
-        if (order.getStatus() != OrderStatus.DELIVERED) {
-            throw new RuntimeException("Refund not allowed");
-        }
-
-        order.setStatus(OrderStatus.REFUNDED);
+        order.getState().refund(order);
     }
 }
