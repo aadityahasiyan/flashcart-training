@@ -105,4 +105,35 @@ public class OrderService {
 
         return order;
     }
+
+    public void cancelOrder(OrderEntity order) {
+
+        if (order.getStatus() == OrderStatus.SHIPPED ||
+                order.getStatus() == OrderStatus.DELIVERED) {
+
+            throw new RuntimeException("Cannot cancel shipped order");
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+    }
+
+    public void shipOrder(OrderEntity order) {
+
+        if (order.getStatus() != OrderStatus.CONFIRMED &&
+                order.getStatus() != OrderStatus.READY) {
+
+            throw new RuntimeException("Order cannot be shipped");
+        }
+
+        order.setStatus(OrderStatus.SHIPPED);
+    }
+
+    public void refundOrder(OrderEntity order) {
+
+        if (order.getStatus() != OrderStatus.DELIVERED) {
+            throw new RuntimeException("Refund not allowed");
+        }
+
+        order.setStatus(OrderStatus.REFUNDED);
+    }
 }
