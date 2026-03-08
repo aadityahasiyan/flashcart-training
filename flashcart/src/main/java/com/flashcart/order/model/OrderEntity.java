@@ -1,5 +1,6 @@
 package com.flashcart.order.model;
 
+import com.flashcart.order.statemachine.OrderState;
 import jakarta.persistence.*;
 
 @Entity
@@ -46,5 +47,17 @@ public class OrderEntity {
 
     public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    @Transient
+    private OrderState state;
+
+    public void setState(OrderState state, OrderStatus status) {
+        this.state = state;
+        this.status = status;
+    }
+
+    public OrderState getState() {
+        return state;
     }
 }
