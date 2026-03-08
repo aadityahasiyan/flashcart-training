@@ -1,7 +1,7 @@
 package com.flashcart.payment.workflowstep;
 
 import com.flashcart.order.model.OrderContext;
-import com.flashcart.order.workflow.OrderStep;
+import com.flashcart.workflow.OrderStep;
 import com.flashcart.payment.service.PaymentService;
 
 public class ProcessPaymentStep implements OrderStep {

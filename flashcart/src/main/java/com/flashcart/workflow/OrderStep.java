@@ -1,4 +1,4 @@
-package com.flashcart.order.workflow;
+package com.flashcart.workflow;
 
 import com.flashcart.order.model.OrderContext;
 

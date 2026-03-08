@@ -1,11 +1,8 @@
 package com.flashcart.inventory.workflowstep;
 
-import com.flashcart.cart.CartItem;
 import com.flashcart.inventory.service.InventoryService;
 import com.flashcart.order.model.OrderContext;
-import com.flashcart.order.workflow.OrderStep;
-
-import java.util.List;
+import com.flashcart.workflow.OrderStep;
 
 public class ReserveInventoryStep implements OrderStep {
 
