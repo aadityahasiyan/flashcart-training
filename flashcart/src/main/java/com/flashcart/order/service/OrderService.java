@@ -2,14 +2,22 @@ package com.flashcart.order.service;
 
 import com.flashcart.dto.CreateOrderRequest;
 import com.flashcart.inventory.service.InventoryService;
+import com.flashcart.inventory.workflowstep.ReserveInventoryStep;
 import com.flashcart.notification.service.NotificationService;
+import com.flashcart.order.model.OrderContext;
 import com.flashcart.order.model.OrderEntity;
 import com.flashcart.order.model.OrderStatus;
 import com.flashcart.order.repository.OrderRepository;
+import com.flashcart.order.workflow.OrderStep;
 import com.flashcart.payment.service.PaymentService;
+import com.flashcart.payment.workflowstep.ProcessPaymentStep;
 import com.flashcart.price.PricingContext;
 import com.flashcart.promotion.service.PromotionService;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -43,29 +51,48 @@ public class OrderService {
         // apply promotions
         promotionService.applyPromotions(context, request.getCoupon());
 
-        //reserve inventory
-        inventoryService.reserve(request.getItems());
-
         // create order
+        OrderContext orderContext = new OrderContext(request, context);
+
+        //Steps
+        List<OrderStep> steps = List.of(
+                new ReserveInventoryStep(inventoryService),
+                new ProcessPaymentStep(paymentService)
+        );
+
+        // process payment
+        List<OrderStep> completed = new ArrayList<>();
+
+        try {
+
+            for (OrderStep step : steps) {
+                step.execute(orderContext);
+                completed.add(step);
+            }
+
+        } catch (Exception e) {
+
+            Collections.reverse(completed);
+
+            for (OrderStep step : completed) {
+                step.rollback(orderContext);
+            }
+
+            throw e;
+        }
+
+        // mark order confirmed
         OrderEntity order = new OrderEntity(
                 context.getSubtotal(),
                 context.getDiscount(),
                 OrderStatus.CREATED
         );
 
-        // process payment
-        try {
-            paymentService.processPayment(context.getFinalAmount());
-        } catch (Exception e) {
-            inventoryService.release(request.getItems());
-            throw e;
-        }
-
-        // mark order confirmed
-        order.setStatus(OrderStatus.CONFIRMED);
-
         // persist
         orderRepository.save(order);
+
+        //CONFIRM
+        order.setStatus(OrderStatus.CONFIRMED);
 
         // notify customer
         notificationService.sendOrderConfirmation(order.getId());
