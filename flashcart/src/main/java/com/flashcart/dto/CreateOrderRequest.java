@@ -1,23 +1,29 @@
 package com.flashcart.dto;
 
+import com.flashcart.cart.CartItem;
+
+import java.util.List;
+
 public class CreateOrderRequest {
 
-    private double amount;
+    private List<CartItem> items;
     private String coupon;
+    private String paymentMethod;
 
-    public double getAmount() {
-        return amount;
+    public List<CartItem> getItems() {
+        return items;
     }
 
     public String getCoupon() {
         return coupon;
     }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
+    public String getPaymentMethod() {
+        return paymentMethod;
     }
-
-    public void setCoupon(String coupon) {
-        this.coupon = coupon;
+    public double getSubtotal() {
+        return items.stream()
+                .mapToDouble(i -> i.getPrice() * i.getQuantity())
+                .sum();
     }
 }

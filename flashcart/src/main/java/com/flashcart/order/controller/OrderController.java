@@ -19,7 +19,13 @@ public class OrderController {
     @PostMapping
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {
 
-        var order = orderService.placeOrder(request.getAmount(), request.getCoupon());
-        return new OrderResponse(order.getId(), order.getAmount(), order.getDiscount(), order.getStatus());
+        var order = orderService.placeOrder(request);
+
+        return new OrderResponse(
+                order.getId(),
+                order.getAmount(),
+                order.getDiscount(),
+                order.getStatus()
+        );
     }
 }

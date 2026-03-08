@@ -1,10 +1,12 @@
 package com.flashcart.order.service;
 
+import com.flashcart.dto.CreateOrderRequest;
 import com.flashcart.notification.service.NotificationService;
 import com.flashcart.order.model.OrderEntity;
 import com.flashcart.order.model.OrderStatus;
 import com.flashcart.order.repository.OrderRepository;
 import com.flashcart.payment.service.PaymentService;
+import com.flashcart.price.PricingContext;
 import com.flashcart.promotion.service.PromotionService;
 import org.springframework.stereotype.Service;
 
@@ -26,16 +28,24 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public OrderEntity placeOrder(double amount, String coupon) {
+    public OrderEntity placeOrder(CreateOrderRequest request) {
 
-        // calculate discount
-        double discount = promotionService.calculateDiscount(amount, coupon);
+        // initialize pricing
+        PricingContext context =
+                new PricingContext(request.getSubtotal(), request.getItems());
+
+        // apply promotions
+        promotionService.applyPromotions(context, request.getCoupon());
 
         // create order
-        OrderEntity order = new OrderEntity(amount, discount, OrderStatus.CREATED);
+        OrderEntity order = new OrderEntity(
+                context.getSubtotal(),
+                context.getDiscount(),
+                OrderStatus.CREATED
+        );
 
         // process payment
-        paymentService.processPayment(amount - discount);
+        paymentService.processPayment(context.getFinalAmount());
 
         // mark order confirmed
         order.setStatus(OrderStatus.CONFIRMED);
